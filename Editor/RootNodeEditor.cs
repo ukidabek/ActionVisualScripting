@@ -22,7 +22,7 @@ namespace ActionVisualScripting
             if (GUILayout.Button("Open graph"))
             {
                 var instance = (CreateInstance(typeof(ActionGraphWindow)) as ActionGraphWindow);
-                instance.RootAction = rootAction;
+                instance.Initialize(rootAction);
                 instance.Show();
             }
         }

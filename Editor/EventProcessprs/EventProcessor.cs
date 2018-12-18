@@ -1,9 +1,18 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace ActionVisualScripting
 {
-    internal abstract class EventProcessor
+    internal abstract class EventProcessor : IComparable
     {
+        public enum MouseButton
+        {
+            Left = 0,
+            Right = 1,
+            Scroll = 2
+        }
+      
+        public virtual int Priority { get { return 0; } }
         protected ActionGraphWindow actionGraph = null;
 
         public EventProcessor(ActionGraphWindow actionGraph)
@@ -27,5 +36,10 @@ namespace ActionVisualScripting
         }
 
         protected abstract bool ProcessEvent(Event @event);
+
+        public int CompareTo(object obj)
+        {
+            return (obj as EventProcessor).Priority.CompareTo(Priority);
+        }
     }
 }

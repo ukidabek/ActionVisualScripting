@@ -10,23 +10,25 @@ namespace ActionVisualScripting
 
         public override EventType EventType { get { return EventType.MouseDown; } }
 
+        public override int Priority { get { return 1000; } }
+
         protected override bool Conditions(Event @event)
         {
-            return base.Conditions(@event) && (@event.button == 0 || @event.button == 1);
+            return base.Conditions(@event) && (@event.button == (int)MouseButton.Left);// || @event.button == (int)MouseButton.Right);
         }
 
         protected override bool ProcessEvent(Event @event)
         {
             _position = actionGraph.ScrollPositon + @event.mousePosition;
-            BaseAction selectedAction = actionGraph.SelectAction(_position);
+           actionGraph.GraphWorker.SelectAction(_position);
 
-            if(selectedAction != actionGraph.SelectedAction)
-            {
-                actionGraph.SelectedAction = selectedAction;
+            //if(selectedAction != actionGraph.SelectedAction)
+            //{
+            //    actionGraph.SelectedAction = selectedAction;
                 actionGraph.Repaint();
-            }
+            //}
 
-            return actionGraph.SelectedAction != null;
+            return false;//actionGraph.GraphWorker.SelectedAction != null;
         }
     }
 }

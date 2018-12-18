@@ -9,27 +9,23 @@ namespace ActionVisualScripting
     public class ActionGraphWindow : EditorWindow
     {
         private RootAction _rootAction = null;
-        public RootAction RootAction
-        {
-            get { return _rootAction; }
-            set
-            {
-                _rootAction = value;
-                _actionsList.Clear();
-                CrateActionList(_rootAction, _actionsList);
-            }
-        }
-
-        private List<BaseAction> _actionsList = new List<BaseAction>();
-        public List<BaseAction> ActionsList { get { return _actionsList; } }
-
-        public BaseAction SelectedAction { get; internal set; }
+        //public RootAction RootAction
+        //{
+        //    get { return _rootAction; }
+        //    set
+        //    {
+        //        _rootAction = value;
+        //        _graphWorker = new GraphWorker(_rootAction);
+        //    }
+        //}
 
         private Rect _graphAreaRect;
         public Vector2 ScrollPositon;
         private Rect _graphAreaWorkRect = new Rect(Vector2.zero, new Vector2(5000, 5000));
 
-        private List<EventProcessor> _eventProcessors = new List<EventProcessor>();
+        private EventProcessorHandler _eventProcessorHandler = null;
+        private GraphWorker _graphWorker = null;
+        public GraphWorker GraphWorker { get { return _graphWorker; } }
 
         public ActionGraphWindow()
         {
@@ -37,18 +33,13 @@ namespace ActionVisualScripting
             _graphAreaRect.size = minSize = new Vector2(800, 600);
             ScrollPositon = new Vector2(_graphAreaWorkRect.width / 2, _graphAreaWorkRect.height / 2);
 
-            _eventProcessors.Add(new SelectNode(this));
-            _eventProcessors.Add(new MoveNode(this));
-            _eventProcessors.Add(new MoveScrollAarea(this));
         }
 
-        private void CrateActionList(BaseAction action, List<BaseAction> list)
+        public void Initialize(RootAction rootAction)
         {
-            if(!list.Contains(action))
-                list.Add(action);
-
-            for (int i = 0; i < action.Actions.Count; i++)
-                CrateActionList(action.Actions[i], list);
+            _rootAction = rootAction;
+            _graphWorker = new GraphWorker(_rootAction);
+            _eventProcessorHandler = new EventProcessorHandler(this);
         }
 
         private void OnGUI()
@@ -59,9 +50,7 @@ namespace ActionVisualScripting
 
         private void ProcessEvents()
         {
-            for (int i = 0; i < _eventProcessors.Count; i++)
-                if (_eventProcessors[i].Process(Event.current))
-                    break;
+            _eventProcessorHandler.ProcessEvents(Event.current);
         }
 
         private void DrawGrid(Rect rect, float gridSpacing, float gridOpacity, Color gridColor)
@@ -95,10 +84,10 @@ namespace ActionVisualScripting
                     DrawGrid(_graphAreaWorkRect, 100, 0.4f, Color.gray);
 
                     Color oldColor = GUI.backgroundColor;
-                    for (int i = 0; i < _actionsList.Count; i++)
+                    for (int i = 0; i < _graphWorker.ActionsList.Count; i++)
                     {
-                        GUI.backgroundColor = _actionsList[i] == SelectedAction ? Color.red : oldColor;
-                        GUI.Box(_actionsList[i].Rect, new GUIContent(_actionsList[i].GetType().Name));
+                        GUI.backgroundColor = _graphWorker.ActionsList[i] == _graphWorker.SelectedAction ? Color.red : oldColor;
+                        GUI.Box(_graphWorker.ActionsList[i].Rect, new GUIContent(_graphWorker.ActionsList[i].GetType().Name));
                     }
 
                     GUI.backgroundColor = oldColor;
@@ -106,15 +95,6 @@ namespace ActionVisualScripting
                 GUI.EndScrollView();
             }
             GUILayout.EndArea();
-        }
-
-        public BaseAction SelectAction(Vector3 position)
-        {
-            foreach (var item in ActionsList)
-                if (item.Rect.Contains(position))
-                    return item;
-
-            return null;
         }
     }
 }

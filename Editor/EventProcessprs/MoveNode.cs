@@ -8,19 +8,21 @@ namespace ActionVisualScripting
 
         public override EventType EventType { get { return EventType.MouseDrag; } }
 
+        public override int Priority { get { return 500; } }
+
         protected override bool Conditions(Event @event)
         {
             return base.Conditions(@event) && 
-                @event.button == 0 && 
-                actionGraph.SelectedAction != null && 
-                actionGraph.SelectedAction.Rect.Contains(actionGraph.ScrollPositon + @event.mousePosition);
+                @event.button == (int)MouseButton.Left && 
+                actionGraph.GraphWorker.SelectedAction != null && 
+                actionGraph.GraphWorker.SelectedAction.Rect.Contains(actionGraph.ScrollPositon + @event.mousePosition);
         }
 
         protected override bool ProcessEvent(Event @event)
         {
-            Rect rect = actionGraph.SelectedAction.Rect;
+            Rect rect = actionGraph.GraphWorker.SelectedAction.Rect;
             rect.position += @event.delta;
-            actionGraph.SelectedAction.Rect = rect;
+            actionGraph.GraphWorker.SelectedAction.Rect = rect;
             actionGraph.Repaint();
             return true;
         }

@@ -10,7 +10,7 @@ namespace ActionVisualScripting
 
         protected override bool Conditions(Event @event)
         {
-            return base.Conditions(@event) && @event.button == 2;
+            return base.Conditions(@event) && @event.button == (int)MouseButton.Scroll;
         }
 
         protected override bool ProcessEvent(Event @event)
